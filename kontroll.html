@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kas on vaja ehitusluba või ehitusteatist? – Ehitusjuhis</title>
+  <meta name="description" content="Kontrolli ehitusseadustiku lisa 1 järgi, kas hoone ehitamiseks, laiendamiseks, ümberehitamiseks või lammutamiseks on vaja ehitusluba, ehitusteatist või ehitusprojekti.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="/">Ehitusjuhis</a>
+      <nav>
+        <a href="/kontroll.html">Loakontroll</a>
+        <a href="/#teemad">Teemad</a>
+        <a href="/#kkk">KKK</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap narrow">
+    <section class="page-head">
+      <h1>Kas mul on vaja ehitusluba või ehitusteatist?</h1>
+      <p class="lead">Vasta neljale küsimusele. Tulemus põhineb <a href="https://www.riigiteataja.ee/aktilisa/1110/7202/6032/EhS_17062026_lisa1.pdf" target="_blank" rel="noopener">ehitusseadustiku lisa 1</a> hoonete tabelil.</p>
+    </section>
+
+    <form id="kontroll" class="checker" novalidate>
+      <fieldset>
+        <legend><span class="num">1</span> Mis hoonega on tegu?</legend>
+        <label class="choice">
+          <input type="radio" name="liik" value="elamu" required>
+          <span><strong>Üksik- või kaksikelamu või selle abihoone</strong>
+          <small>Eramu, paariselamu (kaks korterit) või seda teenindav hoone, nt saun, kuur, garaaž, puukuur.</small></span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="liik" value="muu">
+          <span><strong>Muu hoone</strong>
+          <small>Korter- või ridaelamu, äri-, tootmis-, põllumajandus- või muu mitteelamu, mis ei teeninda eramut.</small></span>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="num">2</span> Mida plaanid teha?</legend>
+        <label class="choice"><input type="radio" name="tegevus" value="pystitamine" required>
+          <span><strong>Uue hoone püstitamine</strong></span></label>
+        <label class="choice"><input type="radio" name="tegevus" value="tehno">
+          <span><strong>Ümberehitamine ainult tehnosüsteemi osas</strong>
+          <small>Nt küttesüsteemi, ventilatsiooni, vee- või kanalisatsioonisüsteemi muutmine, kui kandekonstruktsioone ei puututa.</small></span></label>
+        <label class="choice"><input type="radio" name="tegevus" value="kuni33">
+          <span><strong>Ümberehitamine või laiendamine kuni 33%</strong>
+          <small>Nt kandeseinte või katuse muutmine, väiksem juurdeehitus.</small></span></label>
+        <label class="choice"><input type="radio" name="tegevus" value="yle33">
+          <span><strong>Laiendamine üle 33%</strong>
+          <small>Suurem juurdeehitus või pealeehitus.</small></span></label>
+        <label class="choice"><input type="radio" name="tegevus" value="asendamine">
+          <span><strong>Üksiku osa asendamine samaväärsega</strong>
+          <small>Nt katusekatte, akna või ukse vahetus samaväärse vastu.</small></span></label>
+        <label class="choice"><input type="radio" name="tegevus" value="lammutamine">
+          <span><strong>Lammutamine</strong></span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="num">3</span> Ehitisealune pind</legend>
+        <p class="hint" id="pind-hint">Hoone pind maapinnal koos välisseintega (välismõõtude järgi), m². Ehitamise korral sisesta pind <strong>pärast töid</strong>.</p>
+        <div class="input-row">
+          <input type="number" id="pind" name="pind" min="0" step="0.1" inputmode="decimal" placeholder="nt 25" required>
+          <span class="unit">m²</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="num">4</span> Kas hoone on kõrgem kui 5 m?</legend>
+        <p class="hint">Kõrgus maapinnast hoone kõrgeima punktini (tavaliselt katuseharjani). Ehitamise korral lähtu kõrgusest pärast töid.</p>
+        <label class="choice inline"><input type="radio" name="korgus" value="kuni5" required><span>Kuni 5 m</span></label>
+        <label class="choice inline"><input type="radio" name="korgus" value="yle5"><span>Üle 5 m</span></label>
+      </fieldset>
+
+      <button type="submit" class="btn">Näita tulemust</button>
+      <p class="form-error" id="viga" hidden></p>
+    </form>
+
+    <section id="tulemus" class="result" hidden aria-live="polite"></section>
+
+    <section class="notes">
+      <h2>Mida tasub teada</h2>
+      <ul>
+        <li><strong>Lähtu lõpptulemusest.</strong> Seaduse järgi valitakse menetlus selle järgi, milline on hoone pärast töid (v.a lammutamine). Kui 18 m² kuur laiendatakse 25 m²-ni, kehtivad 20–60 m² hoone nõuded.</li>
+        <li><strong>Piirid on täpsed.</strong> 20,0 m² ja kuni 5 m kõrge hoone kuulub väikseimasse kategooriasse, 20,1 m² juba järgmisesse.</li>
+        <li><strong>„Pole vaja“ ei tähenda „kõik on lubatud“.</strong> Ka ilma teatise ja loata ehitades peavad olema täidetud ehitisele esitatavad nõuded, planeeringu tingimused, tuleohutuskaugused ja naabrite õigused. Muinsuskaitse-, looduskaitse- või ranna- ja kaldaalal võivad kehtida lisapiirangud teiste seaduste järgi.</li>
+        <li><strong>Pärast ehitamist</strong> võib hoone kasutamiseks olla vaja kasutusteatist või kasutusluba (ehitusseadustiku lisa 2).</li>
+      </ul>
+      <p class="source">Allikas: ehitusseadustik, lisa 1 „Tabel ehitusteatise, ehitusprojekti ja ehitusloa kohustuslikkuse kohta“ (RT I, 11.07.2026, 3, jõust. 01.08.2026). Tabelit kontrolliti 03.11.2026. Ehitusjuhis on iseseisev infoleht. Kahtluse korral küsi oma kohaliku omavalitsuse ehitusspetsialistilt.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p><strong>Ehitusjuhis</strong> on iseseisev infoleht ega ole seotud ehitisregistri, riigiasutuste ega kohalike omavalitsustega.</p>
+      <p>Lehel olev teave on üldine ja informatiivne ega asenda kohaliku omavalitsuse, pädeva isiku ega õigusnõustaja nõuannet. Andmete ja dokumentide õigsuse, esitamise ning nendega seotud otsuste eest vastutab kasutaja ise.</p>
+    </div>
+  </footer>
+
+  <script src="kontroll.js"></script>
+</body>
+</html>
