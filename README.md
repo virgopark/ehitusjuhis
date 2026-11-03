@@ -1,6 +1,6 @@
-# Ehituse abileht
+# Ehituskompass
 
-Veebileht, mis aitab ehitusalase taustata inimestel teha lihtsamaid ehitisregistri (EHR) andmemuudatusi ja koostada lihtsamaid dokumente.
+Iseseisev infoleht, mis selgitab lihtsas keeles, kuidas ehitise andmeid korrastada ja väikeehituse dokumente ette valmistada. Ei ole seotud ehitisregistri ega riigiasutustega.
 
 ## Struktuur
 - `index.html` – avaleht
@@ -9,6 +9,4 @@ Veebileht, mis aitab ehitusalase taustata inimestel teha lihtsamaid ehitisregist
 Staatiline sait, build-sammu pole vaja.
 
 ## Avaldamine (Cloudflare Pages)
-1. Cloudflare → Workers & Pages → Create → Pages → Connect to Git → vali see repo.
-2. Build command: *(tühi)*, Output directory: `/`
-3. Iga push `main` harusse avaldab saidi automaatselt.
+Iga push `main` harusse avaldab saidi automaatselt.
