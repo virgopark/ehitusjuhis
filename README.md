@@ -1,4 +1,4 @@
-# Ehituskompass
+# Ehitusjuhis
 
 Iseseisev infoleht, mis selgitab lihtsas keeles, kuidas ehitise andmeid korrastada ja väikeehituse dokumente ette valmistada. Ei ole seotud ehitisregistri ega riigiasutustega.
 
