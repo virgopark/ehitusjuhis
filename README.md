@@ -1,4 +1,4 @@
-# EHR abileht
+# Ehituse abileht
 
 Veebileht, mis aitab ehitusalase taustata inimestel teha lihtsamaid ehitisregistri (EHR) andmemuudatusi ja koostada lihtsamaid dokumente.
 
