@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soojustuse kalkulaator – U-arv, temperatuur ja kondensaat – Ehitusjuhis</title>
+  <meta name="description" content="Arvuta seina, katuse või põranda soojusläbivus (U-arv), vaata temperatuurijaotust ja kontrolli lihtsustatult, kas tarindisse tekib kondensaati.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="./">Ehitusjuhis</a>
+      <nav>
+        <a href="kontroll.html">Loakontroll</a>
+        <a href="soojustus.html">Soojustus</a>
+        <a href="index.html#kkk">KKK</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap narrow">
+    <section class="page-head">
+      <h1>Soojustuse kalkulaator</h1>
+      <p class="lead">Pane kokku oma seina, katuse või põranda kihid ning vaata, kui hästi see soojust peab (U-arv), kuidas temperatuur tarindis muutub ja kas talvel võib sinna tekkida kondensaati.</p>
+    </section>
+
+    <div class="checker">
+      <fieldset>
+        <legend><span class="num">1</span> Mis tarind see on?</legend>
+        <label class="choice inline"><input type="radio" name="tyyp" value="sein" checked><span>Välissein</span></label>
+        <label class="choice inline"><input type="radio" name="tyyp" value="katus"><span>Katus / pööningulagi</span></label>
+        <label class="choice inline"><input type="radio" name="tyyp" value="porand"><span>Põrand välisõhu kohal</span></label>
+        <p class="hint" style="margin-top:8px">Pinnasel oleva põranda U-arv sõltub ka pinnasest ja hoone mõõtudest – seda see kalkulaator ei arvesta.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="num">2</span> Kihid seest välja</legend>
+        <p class="hint">Alusta siseviimistlusest ja lõpeta välisviimistlusega. Kui soojustuse vahel on postid või sarikad, märgi kihi juures „karkass“. Väärtused on üldised – konkreetse toote λ leiad selle tootelehelt ja võid välja üle kirjutada.</p>
+        <p class="examples">Näited:
+          <button type="button" class="chip" data-naide="karkass">Puitkarkass-sein</button>
+          <button type="button" class="chip" data-naide="gaasbetoon">Gaasbetoon + lisasoojustus</button>
+          <button type="button" class="chip" data-naide="poonin">Pööningulagi</button>
+        </p>
+        <div id="kihid" class="layers"></div>
+        <button type="button" id="lisa" class="btn btn-ghost">+ Lisa kiht</button>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="num">3</span> Sise- ja välistingimused</legend>
+        <p class="hint">Kondensaadi kontrolliks. Vaikimisi on tavaline eluruum ja külm talvepäev – muuda, kui ruum on niiskem (nt saun, pesuruum) või soovid kontrollida teist olukorda.</p>
+        <div class="cond">
+          <label class="fld"><span>Sees, °C</span><input type="number" id="ti" value="20" step="any"></label>
+          <label class="fld"><span>Sees, suhteline niiskus %</span><input type="number" id="phii" value="50" min="0" max="100" step="any"></label>
+          <label class="fld"><span>Väljas, °C</span><input type="number" id="te" value="-10" step="any"></label>
+          <label class="fld"><span>Väljas, suhteline niiskus %</span><input type="number" id="phie" value="85" min="0" max="100" step="any"></label>
+        </div>
+      </fieldset>
+    </div>
+
+    <section id="tulemus" class="result calc-result" aria-live="polite"></section>
+
+    <section class="notes">
+      <h2>Mida tasub teada</h2>
+      <ul>
+        <li><strong>U-arv</strong> näitab, mitu vatti soojust läheb läbi ühe ruutmeetri tarindi, kui sise- ja välistemperatuuri vahe on 1 °C. Mida väiksem, seda parem.</li>
+        <li><strong>Suunisvahemikud</strong> (elamu välissein 0,12–0,22, katus ja põrand 0,10–0,15 W/(m²·K)) on varasemates energiatõhususe miinimumnõuetes esmaseks valikuks antud soovituslikud väärtused. Need ei ole iga ehitise kohustuslikud piirväärtused – uue või oluliselt rekonstrueeritava hoone nõuded tulenevad hoone energiatõhususarvust ja projektist. Toetuste puhul vaata toetuse tingimusi.</li>
+        <li><strong>Karkass</strong> (puitpostid, sarikad) juhib soojust paremini kui soojustus. Kalkulaator arvestab seda EVS-EN ISO 6946 ülem- ja alampiiri meetodiga. Külmasildu akende, nurkade ja vundamendi juures see ei arvesta.</li>
+        <li><strong>Tuulutatud õhkvahe</strong> (nt voodrilaua taga) ja kõik, mis jääb sellest väljapoole, U-arvu ei arvestata – nii näeb ette standard.</li>
+        <li><strong>Kondensaadi kontroll</strong> on lihtsustatud (Glaseri meetod ühe püsiva talveolukorra kohta). Väike kondensaadi hulk ei tähenda alati probleemi, kui tarind suvel välja kuivab. Õhupidavus on sama oluline: läbi pragude liikuv niiske õhk toob tarindisse palju rohkem niiskust kui difusioon. Niiskes ruumis või keerulisema tarindi korral pea nõu spetsialistiga.</li>
+      </ul>
+      <p class="source">Arvutuspõhimõtted: EVS-EN ISO 6946 (soojustakistus ja soojusläbivus, pinnatakistused, õhkvahed), EVS-EN ISO 13788 (küllastusrõhk, Glaseri meetod), materjalide väärtused EVS-EN ISO 10456 laadsed üldised arvutuslikud väärtused. Tulemus on hinnanguline ega asenda projekteerija arvutust.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p><strong>Ehitusjuhis</strong> on iseseisev infoleht ega ole seotud ehitisregistri, riigiasutuste ega kohalike omavalitsustega.</p>
+      <p>Lehel olev teave on üldine ja informatiivne ega asenda kohaliku omavalitsuse, pädeva isiku ega õigusnõustaja nõuannet. Andmete ja dokumentide õigsuse, esitamise ning nendega seotud otsuste eest vastutab kasutaja ise.</p>
+    </div>
+  </footer>
+
+  <script src="soojustus.js"></script>
+</body>
+</html>
