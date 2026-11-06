@@ -4,13 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ehitusjuhis – selged juhendid väikeehituse ja ehitise andmete kohta</title>
+  <meta property="og:image" content="https://ehitusjuhis.ee/img/kaas-1920.jpg">
   <meta name="description" content="Ehitusjuhis on iseseisev infoleht, mis selgitab lihtsas keeles, kuidas ehitise andmeid korrastada ja väikeehituse dokumente ette valmistada.">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
     <div class="wrap">
-      <a class="logo" href="./">Ehitusjuhis</a>
+      <a class="logo" href="./" aria-label="Ehitusjuhis – avaleht"><img src="img/logo.png" alt="Ehitusjuhis" width="171" height="56"></a>
       <nav>
         <a href="kontroll.html">Loakontroll</a>
         <a href="soojustus.html">Soojustus</a>
@@ -22,7 +25,11 @@
 
   <main>
     <section class="hero">
-      <div class="wrap">
+      <picture class="hero-cover">
+        <source type="image/webp" srcset="img/kaas-960.webp 960w, img/kaas-1920.webp 1920w" sizes="100vw">
+        <img src="img/kaas-1920.jpg" srcset="img/kaas-960.jpg 960w, img/kaas-1920.jpg 1920w" sizes="100vw" width="1920" height="815" alt="Ehitusjuhis – joonised, mõõdulindid ja puitkarkassiga maja samm-sammult valmimas" fetchpriority="high">
+      </picture>
+      <div class="wrap hero-text">
         <h1>Leia oma ehitusasjades õige suund</h1>
         <p class="lead">Selgitame lihtsas keeles, mida sinu olukorras teha tuleb, milliseid dokumente võib vaja minna ja kuidas neid ise ette valmistada.</p>
         <a class="btn" href="kontroll.html">Kontrolli, kas vajad luba või teatist</a>

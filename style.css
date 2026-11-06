@@ -2,7 +2,8 @@
   --bg: #f7f6f2;
   --ink: #1d2320;
   --muted: #5b625e;
-  --accent: #2f6b4f;
+  --accent: #1c3d5a;
+  --brand-orange: #e8801f;
   --card: #ffffff;
   --line: #e2dfd6;
 }
@@ -18,19 +19,23 @@ body {
 a { color: var(--accent); }
 
 .site-header { border-bottom: 1px solid var(--line); background: var(--card); }
-.site-header .wrap { display: flex; justify-content: space-between; align-items: center; height: 64px; }
-.logo { font-weight: 700; text-decoration: none; color: var(--ink); }
+.site-header .wrap { display: flex; justify-content: space-between; align-items: center; height: 72px; gap: 12px; }
+.logo { display: flex; align-items: center; flex-shrink: 0; }
+.logo img { display: block; height: 48px; width: auto; }
 nav a { margin-left: 20px; text-decoration: none; color: var(--muted); }
 nav a:hover { color: var(--accent); }
 
-.hero { padding: 72px 0 56px; }
+.hero { padding: 0 0 56px; }
+.hero-cover { display: block; background: #1c3d5a; border-bottom: 4px solid var(--brand-orange); }
+.hero-cover img { display: block; width: 100%; height: auto; max-height: 520px; object-fit: cover; object-position: center; }
+.hero-text { padding-top: 48px; }
 .hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin: 0 0 16px; }
 .lead { font-size: 1.15rem; color: var(--muted); max-width: 40em; }
 .btn {
   display: inline-block; margin-top: 16px; padding: 12px 22px;
   background: var(--accent); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600;
 }
-.btn:hover { filter: brightness(1.1); }
+.btn:hover { background: var(--brand-orange); }
 
 section { padding-bottom: 48px; }
 h2 { margin-top: 0; }
@@ -50,6 +55,12 @@ summary { cursor: pointer; font-weight: 600; }
 
 @media (max-width: 560px) {
   nav a { margin-left: 12px; font-size: .9rem; }
+  .logo img { height: 36px; }
+  .hero-text { padding-top: 32px; }
+}
+@media (max-width: 420px) {
+  .site-header .wrap { height: auto; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+  nav a:first-child { margin-left: 0; }
 }
 
 /* Loakontroll */
@@ -61,7 +72,7 @@ summary { cursor: pointer; font-weight: 600; }
 .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .85rem; }
 .choice { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
 .choice:hover { border-color: var(--accent); }
-.choice:has(input:checked) { border-color: var(--accent); background: #eef5f1; }
+.choice:has(input:checked) { border-color: var(--accent); background: #eaf0f6; }
 .choice input { margin-top: 5px; accent-color: var(--accent); }
 .choice small { display: block; color: var(--muted); font-size: .9rem; }
 .choice.inline { display: inline-flex; margin-right: 8px; }
