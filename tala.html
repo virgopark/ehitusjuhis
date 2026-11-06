@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tala kalkulaator – sisejõud, toereaktsioonid ja profiili kontroll – Ehitusjuhis</title>
+  <meta name="description" content="Arvuta lihttala, konsooli, jätkuvtala või oma skeemiga tala toereaktsioonid, lõikejõu- ja momendiepüür ning kontrolli teras- või puittala ristlõiget ja läbipainet.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="./">Ehitusjuhis</a>
+      <nav>
+        <a href="kontroll.html">Loakontroll</a>
+        <a href="soojustus.html">Soojustus</a>
+        <a href="tala.html">Tala</a>
+        <a href="index.html#kkk">KKK</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap narrow">
+    <section class="page-head">
+      <h1>Tala kalkulaator</h1>
+      <p class="lead">Vali tala skeem või pane toed, liigendid ja koormused ise paika. Kalkulaator joonistab lõikejõu- ja momendiepüüri ning arvutab toereaktsioonid. Soovi korral kontrollib ka, kas valitud teras- või puittala peab vastu ja ei paindu liiga palju.</p>
+    </section>
+
+    <div class="checker">
+      <fieldset>
+        <legend><span class="num">1</span> Mida arvutada?</legend>
+        <label class="choice"><input type="radio" name="reziim" value="sisej" checked><span>Ainult sisejõud<small>Toereaktsioonid, lõikejõud V ja paindemoment M. Koormused arvestatakse nii, nagu sisestad.</small></span></label>
+        <label class="choice"><input type="radio" name="reziim" value="kontroll"><span>Sisejõud + profiili kontroll<small>Vali teras- või puitprofiil – arvutatakse kandevõime ja läbipaine eurokoodeksi järgi. Koormused sisesta normväärtustena.</small></span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="num">2</span> Tala skeem</legend>
+        <p class="examples">Kiirvalik:
+          <button type="button" class="chip on" data-skeem="lihttala">Lihttala</button>
+          <button type="button" class="chip" data-skeem="konsool">Konsool</button>
+          <button type="button" class="chip" data-skeem="yleulatus">Üleulatusega</button>
+          <button type="button" class="chip" data-skeem="jaikliig">Jäik + liigend</button>
+          <button type="button" class="chip" data-skeem="jaikjaik">Mõlemast otsast jäik</button>
+          <button type="button" class="chip" data-skeem="jatk2">Jätkuvtala, 2 ava</button>
+          <button type="button" class="chip" data-skeem="jatk3">Jätkuvtala, 3 ava</button>
+        </p>
+        <div class="input-row"><label class="fld"><span>Tala pikkus L, m</span><input type="number" id="L" min="0" step="any"></label></div>
+        <h4 class="sub">Toed</h4>
+        <p class="hint"><strong>Liikumatu liigend</strong> hoiab tala paigal, aga laseb pöörduda. <strong>Liikuv liigend</strong> (rull) hoiab ainult vertikaalsuunas. <strong>Jäik kinnitus</strong> ei lase ka pöörduda (nt seina sisse kinnitatud konsool). Asukoht x mõõdetakse tala vasakust otsast.</p>
+        <div id="toed" class="items"></div>
+        <button type="button" class="btn btn-ghost" data-lisa="tugi">+ Lisa tugi</button>
+        <h4 class="sub">Sisemised liigendid</h4>
+        <p class="hint">Liigend tala sees (nt Gerberi tala jätk) – seal ei saa moment üle kanduda. Iga liigend vajab lisatuge, muidu tala on labiilne.</p>
+        <div id="liigendid" class="items"></div>
+        <button type="button" class="btn btn-ghost" data-lisa="liigend">+ Lisa liigend</button>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="num">3</span> Koormused</legend>
+        <p class="hint">Allapoole suunatud jõud ja koormused on positiivsed (sisesta negatiivne väärtus, kui koormus on üles suunatud). <span class="only-b">Profiili kontrolli korral sisesta <strong>normväärtused</strong> ja märgi, kas koormus on alaline (omakaal, põrand, katus) või muutuv (kasuskoormus, lumi).</span></p>
+        <div id="koormused" class="items"></div>
+        <p class="examples">Lisa:
+          <button type="button" class="chip" data-lisa="q">Ühtlane lauskoormus</button>
+          <button type="button" class="chip" data-lisa="trap">Muutuv lauskoormus</button>
+          <button type="button" class="chip" data-lisa="P">Koondatud jõud</button>
+          <button type="button" class="chip" data-lisa="M">Moment</button>
+        </p>
+        <div id="eelvaade" class="preview"></div>
+      </fieldset>
+
+      <fieldset id="profiil" class="only-b">
+        <legend><span class="num">4</span> Profiil ja materjal</legend>
+        <label class="choice inline"><input type="radio" name="mat" value="teras" checked><span>Teras</span></label>
+        <label class="choice inline"><input type="radio" name="mat" value="puit"><span>Saetud puit</span></label>
+        <label class="choice inline"><input type="radio" name="mat" value="liimpuit"><span>Liimpuit</span></label>
+
+        <div class="grid3 only-teras">
+          <label class="fld"><span>Profiiliseeria</span><select id="seeria"></select></label>
+          <label class="fld"><span>Profiil</span><select id="suurus"></select></label>
+          <label class="fld"><span>Teras</span><select id="teras"><option>S235</option><option>S275</option><option selected>S355</option></select></label>
+        </div>
+
+        <div class="only-puit" hidden>
+          <div class="grid3">
+            <label class="fld"><span>Tugevusklass</span><select id="klass"></select></label>
+            <label class="fld"><span>Laius b, mm</span><input type="number" id="b" value="45" min="1" step="any"></label>
+            <label class="fld"><span>Kõrgus h, mm</span><input type="number" id="h" value="195" min="1" step="any"></label>
+          </div>
+          <p class="examples">Levinud mõõdud:
+            <button type="button" class="chip" data-mootmed="45x145">45×145</button>
+            <button type="button" class="chip" data-mootmed="45x195">45×195</button>
+            <button type="button" class="chip" data-mootmed="45x220">45×220</button>
+            <button type="button" class="chip" data-mootmed="50x200">50×200</button>
+            <button type="button" class="chip" data-mootmed="70x220">70×220</button>
+            <button type="button" class="chip" data-mootmed="90x315">90×315</button>
+            <button type="button" class="chip" data-mootmed="115x405">115×405</button>
+          </p>
+          <div class="grid3">
+            <label class="fld"><span>Kasutusklass</span><select id="kk">
+              <option value="1">1 – köetud siseruum</option>
+              <option value="2">2 – kuur, katusealune (katuse all)</option>
+              <option value="3">3 – väljas, ilmastiku käes</option>
+            </select></label>
+            <label class="fld"><span>Muutuva koormuse kestus</span><select id="kestus"></select></label>
+            <label class="fld"><span>ψ<sub>2</sub> (muutuva koormuse pikaajaline osa)</span><input type="number" id="psi2" value="0.3" min="0" max="1" step="0.1"></label>
+          </div>
+        </div>
+
+        <h4 class="sub">Arvutuse eeldused</h4>
+        <div class="grid3">
+          <label class="fld"><span>Läbipainde piir</span><select id="piir">
+            <option value="200">L/200</option><option value="250" selected>L/250</option><option value="300">L/300</option><option value="400">L/400</option>
+          </select></label>
+          <label class="fld"><span>γ<sub>G</sub> (alaline)</span><input type="number" id="gG" value="1.2" step="0.05" min="0"></label>
+          <label class="fld"><span>γ<sub>Q</sub> (muutuv)</span><input type="number" id="gQ" value="1.5" step="0.05" min="0"></label>
+        </div>
+        <label class="frame-toggle"><input type="checkbox" id="omakaal" checked> Lisa tala omakaal alalise koormusena</label>
+        <label class="frame-toggle"><input type="checkbox" id="kulg" checked> Tala surutud vöö on külgsuunas toetatud (nt laudis, plaat või talad kinnitatud) – kiipe ei kontrollita</label>
+        <div id="lcr-wrap" class="grid3" hidden>
+          <label class="fld"><span>Külgtugede vahekaugus, m</span><input type="number" id="lcr" value="5" min="0" step="any"></label>
+          <label class="fld only-teras"><span>Momendijaotuse tegur C<sub>1</sub></span><input type="number" id="c1" value="1" min="1" step="0.05"></label>
+        </div>
+        <p class="hint" style="margin-top:8px">Konsooli korral võta külgtugede vahekauguseks umbes 2 × konsooli pikkus. C<sub>1</sub> = 1 on varuga; ühtlase koormusega lihttala puhul on see umbes 1,13.</p>
+        <button type="button" id="leia" class="btn">Leia väikseim sobiv</button>
+        <span id="leia-teade" class="small" aria-live="polite"></span>
+      </fieldset>
+    </div>
+
+    <section id="tulemus" class="result calc-result" aria-live="polite"></section>
+
+    <section class="notes">
+      <h2>Mida tasub teada</h2>
+      <ul>
+        <li><strong>Lõikejõud</strong> näitab, kui suur jõud püüab tala ristlõiget „läbi lõigata“ – suurim on tavaliselt toe juures. <strong>Paindemoment</strong> näitab, kui tugevasti tala paindub – lihttalal on see suurim keskel, konsoolil ja jätkuvtala vahetoel aga toe kohal (seal on tõmmatud ülemine kiud).</li>
+        <li><strong>Staatikaga määramatud</strong> skeemid (jäigad otsad, jätkuvtala) arvutatakse jäikusmeetodiga, eeldades kogu pikkuses ühesugust ristlõiget. Sisejõud ei sõltu siis profiilist, läbipaine aga sõltub.</li>
+        <li><strong>Normväärtus ja arvutuslik väärtus.</strong> Profiili kontrollis korrutatakse normkoormused osateguritega (vaikimisi 1,2 alalisele ja 1,5 muutuvale koormusele). Läbipainet kontrollitakse normkoormustega. Puidu puhul arvestab lõplik läbipaine ka roomet (k<sub>def</sub>).</li>
+        <li><strong>Jätkuvtala</strong> puhul võib suurim moment tekkida siis, kui kasuskoormus on ainult osal avadest. Kalkulaator arvestab ainult olukorda, kus kõik sisestatud koormused mõjuvad korraga. Vajadusel muuda koormuste ulatust ja kontrolli ka teisi paigutusi.</li>
+        <li><strong>Mida ei kontrollita:</strong> toetuspinna muljumine, ühendused ja kinnitused, võnkumine, tulepüsivus, kaldtalad ning teljejõud. Terastalade puhul eeldatakse, et ristlõige on klassis 1–3 (kõik siinsed profiilid on).</li>
+      </ul>
+      <p class="source">Arvutuspõhimõtted: Euler-Bernoulli tala jäikusmeetod. Teras EVS-EN 1993-1-1 (6.2.5, 6.2.6, 6.2.8, kiip 6.3.2.3, γ<sub>M0</sub> = γ<sub>M1</sub> = 1,0), profiilide omadused arvutatud mõõtmetest. Puit EVS-EN 1995-1-1 (6.1.6, 6.1.7, 6.3.3, 2.2.3), materjalid EVS-EN 338 ja EVS-EN 14080. Koormuste kombineerimine EVS-EN 1990 põhimõttel. Tulemus on hinnanguline abivahend ega asenda projekteerija arvutust – kui tala kannab inimesi või hoone olulist osa, lase lahendus pädeval isikul üle kontrollida.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p><strong>Ehitusjuhis</strong> on iseseisev infoleht ega ole seotud ehitisregistri, riigiasutuste ega kohalike omavalitsustega.</p>
+      <p>Lehel olev teave on üldine ja informatiivne ega asenda kohaliku omavalitsuse, pädeva isiku ega õigusnõustaja nõuannet. Andmete ja dokumentide õigsuse, esitamise ning nendega seotud otsuste eest vastutab kasutaja ise.</p>
+    </div>
+  </footer>
+
+  <script src="tala.js"></script>
+</body>
+</html>
