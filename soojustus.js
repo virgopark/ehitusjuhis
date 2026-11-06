@@ -544,7 +544,7 @@
       const a = r.andmed[i];
       const m = MAT[k.m];
       rows += `<tr>
-        <td><span class="sw" style="background:${m.v}"></span>${i + 1}</td>
+        <td><span class="nr-badge" style="--sw:${m.v}">${i + 1}</span></td>
         <td>${esc(m.nimi)}${a.f > 0 ? ` <small>+ ${esc(KARKASS[k.karkass.m].nimi.toLowerCase())} ${fmt(a.f * 100, 1)} %</small>` : ""}</td>
         <td>${fmt(k.d, k.d < 1 ? 1 : 0)}</td>
         <td>${m.tyyp === "ohk" ? "–" : fmt(k.l, 3)}</td>
@@ -561,9 +561,25 @@
       <tbody>${rows}</tbody></table></div>`;
   }
 
+  // Kihi lühinimi joonisele
+  function luhiNimi(k) {
+    const m = MAT[k.m];
+    if (m.tyyp === "ohk" || m.tyyp === "tuulutatud") return "Õhkvahe";
+    return m.nimi.split(" (")[0];
+  }
+  let _ctx = null;
+  function tekstiLaius(t) {
+    try {
+      if (!_ctx) { _ctx = document.createElement("canvas").getContext("2d"); _ctx.font = "11px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"; }
+      return _ctx.measureText(t).width;
+    } catch (e) {
+      return t.length * 6.2;
+    }
+  }
+
   // SVG-graafik: x-telg = paksus (mm), kihid värviliste ribadena
   function graafik(r, liik) {
-    const W = 720, H = 260, padL = 46, padR = 14, padT = 14, padB = 30;
+    const W = 720, padL = 46, padR = 14, padT = 14;
     const film = 30; // pinnatakistuste ala px
     const dTot = r.xPiir[r.xPiir.length - 1];
     const plotW = W - padL - padR - 2 * film;
@@ -577,6 +593,36 @@
     const X = [padL + film];
     ww.forEach((w) => X.push(X[X.length - 1] + w));
     const x0 = padL, x1 = W - padR;
+
+    // Kihtide sildid: nimi, kui mahub; muidu number ringis (kattumisel teises reas)
+    const R0 = 8, rida1 = 14, rida2 = 34;
+    // rea 1 hõivatud lõigud: "sees" ja "väljas" sildid
+    const hoivatud = [
+      [padL + film / 2 - tekstiLaius("sees") / 2, padL + film / 2 + tekstiLaius("sees") / 2],
+      [x1 - film / 2 - tekstiLaius("väljas") / 2, x1 - film / 2 + tekstiLaius("väljas") / 2],
+    ];
+    const vaba = (a, b) => hoivatud.every(([c, d]) => b + 2 <= c || a - 2 >= d);
+    let teineRida = false;
+    const sildid = r.eff.map((k, i) => {
+      const nimi = luhiNimi(k);
+      const laius = X[i + 1] - X[i];
+      const kesk = (X[i] + X[i + 1]) / 2;
+      const tl = tekstiLaius(nimi);
+      if (tl + 6 <= laius && vaba(kesk - tl / 2, kesk + tl / 2)) {
+        hoivatud.push([kesk - tl / 2, kesk + tl / 2]);
+        return { tyyp: "nimi", x: kesk, tekst: nimi };
+      }
+      return { tyyp: "ring", x: kesk, nr: i + 1, i };
+    });
+    // ringid: rida 1, kui vaba; muidu rida 2
+    const hoivatud2 = [];
+    sildid.filter((sl) => sl.tyyp === "ring").forEach((sl) => {
+      const a = sl.x - R0, b = sl.x + R0;
+      if (vaba(a, b)) { sl.rida = 1; hoivatud.push([a, b]); }
+      else { sl.rida = 2; teineRida = true; hoivatud2.push([a, b]); }
+    });
+    const padB = teineRida ? 50 : 30;
+    const H = 230 + padB;
 
     let ymin, ymax, yfmt, unit;
     let series = [];
@@ -596,7 +642,16 @@
     r.eff.forEach((k, i) => {
       const m = MAT[k.m];
       svg += `<rect x="${X[i]}" y="${padT}" width="${X[i + 1] - X[i]}" height="${H - padT - padB}" fill="${m.v}" opacity="${m.tyyp === "ohk" ? 0.25 : 0.55}" stroke="#bbb" stroke-width="0.5"/>`;
-      if (X[i + 1] - X[i] > 16) svg += `<text x="${(X[i] + X[i + 1]) / 2}" y="${H - padB + 13}" class="ax" text-anchor="middle">${i + 1}</text>`;
+    });
+    const yAll = H - padB;
+    sildid.forEach((sl) => {
+      if (sl.tyyp === "nimi") {
+        svg += `<text x="${sl.x}" y="${yAll + rida1}" class="ax lbl" text-anchor="middle">${esc(sl.tekst)}</text>`;
+      } else {
+        const cy = yAll + (sl.rida === 1 ? rida1 - 4 : rida2 - 4);
+        if (sl.rida === 2) svg += `<line x1="${sl.x}" x2="${sl.x}" y1="${yAll}" y2="${cy - R0}" class="lead"/>`;
+        svg += `<circle cx="${sl.x}" cy="${cy}" r="${R0}" class="nr-ring"/><text x="${sl.x}" y="${cy + 3.5}" class="nr-t" text-anchor="middle">${sl.nr}</text>`;
+      }
     });
     svg += `<text x="${padL + film / 2}" y="${H - padB + 13}" class="ax" text-anchor="middle">sees</text>`;
     svg += `<text x="${x1 - film / 2}" y="${H - padB + 13}" class="ax" text-anchor="middle">väljas</text>`;
