@@ -493,24 +493,25 @@
         <button type="button" class="del" data-del title="Eemalda">✕</button>
       </div>`).join("");
   }
-  function joonistaKoormused() {
+  function koormuseValjad(l) {
     const catSel = (l) => `<label class="fld only-b"><span>Liik</span><select data-f="cat">
         <option value="G"${l.cat === "G" ? " selected" : ""}>Alaline (G)</option>
         <option value="Q"${l.cat === "Q" ? " selected" : ""}>Muutuv (Q)</option></select></label>`;
     const fld = (lbl, f, v) => `<label class="fld"><span>${lbl}</span><input type="number" step="any" data-f="${f}" value="${v}"></label>`;
-    $("#koormused").innerHTML = olek.koormused.map((l) => {
-      const tyyp = l.t === "q" ? (l.uh ? "q" : "trap") : l.t;
-      let f = "";
+    let f = "";
       if (l.t === "P") f = fld("P, kN (↓ +)", "P", l.P) + fld("Asukoht x, m", "x", l.x);
       if (l.t === "M") f = fld("M, kNm", "M", l.M) + fld("Asukoht x, m", "x", l.x) +
         `<label class="fld"><span>Suund</span><select data-f="dir"><option value="1"${l.dir > 0 ? " selected" : ""}>↻ päripäeva</option><option value="-1"${l.dir < 0 ? " selected" : ""}>↺ vastupäeva</option></select></label>`;
       if (l.t === "q" && l.uh) f = fld("q, kN/m (↓ +)", "q1", l.q1) + fld("Algus a, m", "a", l.a) + fld("Lõpp b, m", "b", l.b);
       if (l.t === "q" && !l.uh) f = fld("q algus, kN/m", "q1", l.q1) + fld("q lõpp, kN/m", "q2", l.q2) + fld("Algus a, m", "a", l.a) + fld("Lõpp b, m", "b", l.b);
-      return `<div class="item load" data-id="${l.id}" data-kind="koormus">
-        <div class="item-head"><span class="item-name">${KOORM_NIMI[tyyp]}</span><button type="button" class="del" data-del title="Eemalda">✕</button></div>
-        <div class="item-fields">${f}${catSel(l)}</div>
-      </div>`;
-    }).join("") || `<p class="hint">Koormusi pole lisatud.</p>`;
+    return f + catSel(l);
+  }
+  const koormuseNimi = (l) => KOORM_NIMI[l.t === "q" ? (l.uh ? "q" : "trap") : l.t];
+  function joonistaKoormused() {
+    $("#koormused").innerHTML = olek.koormused.map((l) => `<div class="item load" data-id="${l.id}" data-kind="koormus">
+        <div class="item-head"><span class="item-name">${koormuseNimi(l)}</span><button type="button" class="del" data-del title="Eemalda">✕</button></div>
+        <div class="item-fields">${koormuseValjad(l)}</div>
+      </div>`).join("") || `<p class="hint">Koormusi pole lisatud.</p>`;
   }
   function joonistaKõik() { joonistaToed(); joonistaLiigendid(); joonistaKoormused(); }
 
@@ -526,8 +527,9 @@
   function onSisend(e) {
     const el = e.target;
     $("#leia-teade").textContent = "";
-    if (el.id === "L") {
+    if (el.id === "L" || el.dataset.f === "L") {
       const uus = num(el.value);
+      if (el.id !== "L") $("#L").value = el.value;
       if (uus > 0) {
         const vana = olek.L;
         const liiguta = (x) => (Math.abs(x - vana) < 1e-9 ? uus : x);
@@ -548,6 +550,7 @@
         if (f === "q1" && o.obj.uh) o.obj.q2 = o.obj.q1;
       }
     }
+    if (el.closest("#pop")) joonistaKõik();
     if (el.name === "mat") seadistaMaterjal();
     if (el.name === "reziim") document.body.classList.toggle("mode-b", reziim() === "kontroll");
     if (el.id === "kulg") $("#lcr-wrap").hidden = el.checked;
@@ -557,6 +560,7 @@
   function onKlikk(e) {
     const el = e.target;
     if (el.closest("button") && el.id !== "leia") $("#leia-teade").textContent = "";
+    if (el.closest("[data-sulge]")) return sulgePop();
     if (el.closest("[data-del]")) {
       const o = leiaObj(el);
       if (o) { o.arr.splice(o.arr.indexOf(o.obj), 1); joonistaKõik(); arvuta(); }
@@ -633,12 +637,12 @@
     const koormused = [];
     olek.koormused.forEach((l, i) => {
       const nr = i + 1;
-      if (l.t === "P") { if (!isFinite(l.P) || !sees(l.x)) vead.push(`Koormus ${nr}: kontrolli väärtust ja asukohta.`); else koormused.push({ t: "P", P: l.P, x: l.x, cat: l.cat }); }
-      if (l.t === "M") { if (!isFinite(l.M) || !sees(l.x)) vead.push(`Koormus ${nr}: kontrolli väärtust ja asukohta.`); else koormused.push({ t: "M", M: l.M * l.dir, x: l.x, cat: l.cat }); }
+      if (l.t === "P") { if (!isFinite(l.P) || !sees(l.x)) vead.push(`Koormus ${nr}: kontrolli väärtust ja asukohta.`); else koormused.push({ id: l.id, t: "P", P: l.P, x: l.x, cat: l.cat }); }
+      if (l.t === "M") { if (!isFinite(l.M) || !sees(l.x)) vead.push(`Koormus ${nr}: kontrolli väärtust ja asukohta.`); else koormused.push({ id: l.id, t: "M", M: l.M * l.dir, x: l.x, cat: l.cat }); }
       if (l.t === "q") {
         const q2 = l.uh ? l.q1 : l.q2;
         if (!isFinite(l.q1) || !isFinite(q2) || !sees(l.a) || !sees(l.b) || l.b <= l.a) vead.push(`Koormus ${nr}: kontrolli väärtusi; lõpp b peab olema suurem kui algus a ja tala piires.`);
-        else koormused.push({ t: "q", q1: l.q1, q2, a: l.a, b: l.b, cat: l.cat });
+        else koormused.push({ id: l.id, t: "q", q1: l.q1, q2, a: l.a, b: l.b, cat: l.cat });
       }
     });
     if (!olek.toed.length) vead.push("Lisa vähemalt üks tugi.");
@@ -647,7 +651,7 @@
     const nL = olek.liigendid.length;
     const maar = r - 3 - nL;
     if (olek.toed.length && !olek.toed.some((s) => s.t !== "rull")) hoiat.push("Kõik toed on liikuvad (rullid) – tala on horisontaalsuunas labiilne. Päris tarindis peab vähemalt üks tugi takistama ka horisontaalset liikumist (liikumatu liigend või jäik kinnitus). Vertikaalkoormuste sisejõud on siiski arvutatud.");
-    return { mudel: { L, toed: olek.toed.map((s) => ({ t: s.t, x: s.x })), liigendid: olek.liigendid.map((h) => ({ x: h.x })), koormused }, vead, hoiat, maar };
+    return { mudel: { L, toed: olek.toed.map((s) => ({ id: s.id, t: s.t, x: s.x })), liigendid: olek.liigendid.map((h) => ({ id: h.id, x: h.x })), koormused }, vead, hoiat, maar };
   }
 
   // =====================================================================
@@ -671,6 +675,8 @@
       const h1 = (Math.abs(l.q1) / qMax) * 32, h2 = (Math.abs(l.q2) / qMax) * 32;
       const x1 = X(l.a, L), x2 = X(l.b, L);
       const kat = l.cat === "Q" && opts.cat ? "q-var" : "q-perm";
+      g += elAlgus("koormus", l.id, opts);
+      g += `<rect class="hit" x="${x1}" y="${alus - Math.max(h1, h2) - 16}" width="${Math.max(6, x2 - x1)}" height="${Math.max(h1, h2) + 18}"/>`;
       g += `<polygon class="${kat}" points="${x1},${alus} ${x1},${alus - h1} ${x2},${alus - h2} ${x2},${alus}"/>`;
       const nA = Math.max(2, Math.round((x2 - x1) / 22));
       for (let i = 0; i <= nA; i++) {
@@ -682,6 +688,7 @@
       }
       const lbl = Math.abs(l.q1 - l.q2) < 1e-9 ? `${fmt(l.q1, 2)} kN/m` : `${fmt(l.q1, 2)}…${fmt(l.q2, 2)} kN/m`;
       g += `<text class="lbl" x="${(x1 + x2) / 2}" y="${alus - Math.max(h1, h2) - 4}" text-anchor="middle">${lbl}${opts.cat ? ` (${l.cat})` : ""}</text>`;
+      g += elLopp(l.id);
       tasemed.push({ a: l.a, b: l.b, top: alus - Math.max(h1, h2) - 14 });
     });
     // tala
@@ -689,6 +696,7 @@
     // toed
     toed.forEach((s) => {
       const px = X(s.x, L);
+      g += elAlgus("tugi", s.id, opts) + `<rect class="hit" x="${px - 18}" y="${Yb - 22}" width="36" height="52"/>`;
       if (s.t === "jaik") {
         const pool = s.x < 1e-9 ? -1 : s.x > L - 1e-9 ? 1 : 0;
         if (pool) {
@@ -705,12 +713,15 @@
         g += `<line class="sup" x1="${px - 15}" y1="${base}" x2="${px + 15}" y2="${base}"/>`;
         for (let i = -14; i < 15; i += 6) g += `<line class="hatch" x1="${px + i}" y1="${base + 6}" x2="${px + i + 5}" y2="${base}"/>`;
       }
+      g += elLopp(s.id);
     });
-    liigendid.forEach((h) => { g += `<circle class="hinge" cx="${X(h.x, L)}" cy="${Yb}" r="4.5"/>`; });
+    liigendid.forEach((h) => { g += elAlgus("liigend", h.id, opts) + `<rect class="hit" x="${X(h.x, L) - 9}" y="${Yb - 9}" width="18" height="18"/><circle class="hinge" cx="${X(h.x, L)}" cy="${Yb}" r="4.5"/>` + elLopp(h.id); });
     // koondatud jõud ja momendid
     const qTop = Math.min(Yb - 62, ...tasemed.map((t) => t.top + 4));
     koormused.forEach((l) => {
       const px = X(l.x ?? 0, L);
+      if (l.t === "P") g += elAlgus("koormus", l.id, opts) + `<rect class="hit" x="${px - 9}" y="${qTop}" width="18" height="${Yb - qTop}"/><rect class="hit" x="${px - 4}" y="${qTop - 16}" width="90" height="16"/>`;
+      if (l.t === "M") g += elAlgus("koormus", l.id, opts) + `<rect class="hit" x="${px - 22}" y="${Yb - 44}" width="44" height="44"/>`;
       if (l.t === "P") {
         g += l.P >= 0 ? arrow(px, qTop, px, Yb - 3, "arr-p") : arrow(px, Yb - 3, px, qTop, "arr-p");
         g += `<text class="lbl strong" x="${px + 5}" y="${qTop - 2}">${fmt(Math.abs(l.P), 2)} kN${opts.cat ? ` (${l.cat})` : ""}</text>`;
@@ -724,6 +735,7 @@
         g += `<polygon class="head-m" points="${p1[0]},${p1[1] + 1} ${p1[0] - 4 * dir},${p1[1] - 7} ${p1[0] + 4 * dir},${p1[1] - 5}"/>`;
         g += `<text class="lbl strong" x="${px}" y="${Yb - r - 6}" text-anchor="middle">${fmt(Math.abs(l.M), 2)} kNm${opts.cat ? ` (${l.cat})` : ""}</text>`;
       }
+      if (l.t !== "q") g += elLopp(l.id);
     });
     // mõõtjoon
     const yd = Yb + 44;
@@ -738,7 +750,8 @@
         if (X(x, L) - X(a, L) > 26) g += `<text class="ax" x="${(X(a, L) + X(x, L)) / 2}" y="${yd - 4}" text-anchor="middle">${fmt(x - a, 2)}</text>`;
       }
     });
-    g += `<text class="ax" x="${(X(0, L) + X(L, L)) / 2}" y="${yd + 16}" text-anchor="middle">L = ${fmt(L, 2)} m</text>`;
+    g += (opts.ia ? `<g class="el el-L${opts.sel === "L" ? " sel" : ""}" data-kind="pikkus" data-id="L"><rect class="hit" x="${(X(0, L) + X(L, L)) / 2 - 45}" y="${yd + 3}" width="90" height="18"/>` : "") +
+      `<text class="ax${opts.ia ? " editable" : ""}" x="${(X(0, L) + X(L, L)) / 2}" y="${yd + 16}" text-anchor="middle">L = ${fmt(L, 2)} m${opts.ia ? " ✎" : ""}</text>` + (opts.ia ? "</g>" : "");
     // reaktsioonid
     if (reakts) {
       reakts.forEach((r) => {
@@ -751,6 +764,13 @@
     }
     return `<svg class="chart scheme" viewBox="0 0 ${VB_W} ${H}" role="img" aria-label="Arvutusskeem">${defs()}${g}</svg>`;
   }
+
+  let elAvatud = false;
+  function elAlgus(kind, id, opts) {
+    elAvatud = !!(opts.ia && id != null);
+    return elAvatud ? `<g class="el${opts.sel === kind + id ? " sel" : ""}" data-kind="${kind}" data-id="${id}">` : "";
+  }
+  function elLopp() { const v = elAvatud ? "</g>" : ""; elAvatud = false; return v; }
 
   function defs() {
     return `<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahead"/></marker></defs>`;
@@ -823,8 +843,7 @@
   function arvuta() {
     const { mudel, vead, hoiat, maar } = mudelOlekust();
     const modeB = reziim() === "kontroll";
-    const eel = $("#eelvaade");
-    if (mudel.L > 0) eel.innerHTML = skeemSvg(mudel, null, { cat: modeB });
+    if (mudel.L > 0) { $("#skeem-svg").innerHTML = skeemSvg(mudel, null, { cat: modeB, ia: true, sel: valitud ? valitud.kind + valitud.id : null }); paigutaPop(); }
     const res = $("#tulemus");
     if (vead.length) {
       res.className = "result calc-result warn";
@@ -944,6 +963,88 @@
     arvuta();
   }
 
+  // ---------- Interaktiivne skeem ----------
+  let valitud = null; // { kind, id }
+  let lohis = null;
+
+  function popSisu() {
+    if (!valitud) return "";
+    const { kind, id } = valitud;
+    const pea = (nimi, del) => `<div class="pop-head"><strong>${nimi}</strong><span>${del ? `<button type="button" class="del" data-del title="Eemalda">🗑</button>` : ""}<button type="button" class="del" data-sulge title="Sulge">✕</button></span></div>`;
+    const xf = (v) => `<label class="fld"><span>Asukoht x, m</span><input type="number" step="any" data-f="x" value="${v}"></label>`;
+    if (kind === "pikkus") return pea("Tala pikkus", false) + `<div class="item-fields"><label class="fld"><span>L, m</span><input type="number" step="any" min="0" data-f="L" value="${olek.L}"></label></div>`;
+    const arr = kind === "tugi" ? olek.toed : kind === "liigend" ? olek.liigendid : olek.koormused;
+    const o = arr.find((q) => q.id === +id);
+    if (!o) return null;
+    if (kind === "tugi") return pea("Tugi", true) + `<div class="item-fields"><label class="fld"><span>Tüüp</span><select data-f="t">${Object.entries(TOE_NIMI).map(([k, v]) => `<option value="${k}"${k === o.t ? " selected" : ""}>${v}</option>`).join("")}</select></label>${xf(o.x)}</div>`;
+    if (kind === "liigend") return pea("Sisemine liigend", true) + `<div class="item-fields">${xf(o.x)}</div>`;
+    return pea(koormuseNimi(o), true) + `<div class="item-fields">${koormuseValjad(o)}</div>`;
+  }
+  function avaPop(kind, id) {
+    valitud = { kind, id: String(id) };
+    const p = $("#pop");
+    p.dataset.kind = kind; p.dataset.id = id;
+    p.innerHTML = popSisu() || "";
+    p.hidden = false;
+    arvuta();
+    const i = p.querySelector("input");
+    if (i) { i.focus(); i.select(); }
+  }
+  function sulgePop() { if (!valitud) return; valitud = null; $("#pop").hidden = true; arvuta(); }
+  function paigutaPop() {
+    const p = $("#pop");
+    if (!valitud) { p.hidden = true; return; }
+    const g = $("#skeem-svg").querySelector(`.el[data-kind="${valitud.kind}"][data-id="${valitud.id}"]`);
+    if (!g) { if (p.contains(document.activeElement)) return; valitud = null; p.hidden = true; return; }
+    if (!p.contains(document.activeElement)) { const sisu = popSisu(); if (sisu === null) { valitud = null; p.hidden = true; return; } p.innerHTML = sisu; }
+    p.hidden = false;
+    const cr = $("#eelvaade").getBoundingClientRect(), br = g.getBoundingClientRect();
+    const w = p.offsetWidth;
+    const sr = $("#skeem-svg").getBoundingClientRect();
+    p.style.top = `${sr.bottom - cr.top + 4}px`;
+    p.style.left = `${Math.max(0, Math.min(cr.width - w, br.left + br.width / 2 - cr.left - w / 2))}px`;
+  }
+
+  function lohistaAlgus(e) {
+    const g = e.target.closest(".el");
+    if (!g) return;
+    const kind = g.dataset.kind, id = g.dataset.id;
+    let obj = null;
+    if (kind !== "pikkus") {
+      const arr = kind === "tugi" ? olek.toed : kind === "liigend" ? olek.liigendid : olek.koormused;
+      obj = arr.find((q) => q.id === +id);
+    }
+    lohis = { kind, id, obj, x0: e.clientX, liikus: false, orig: obj ? { x: obj.x, a: obj.a, b: obj.b } : null };
+    $("#skeem-svg").setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }
+  function lohistaLiigu(e) {
+    if (!lohis || !lohis.obj) return;
+    const dx = e.clientX - lohis.x0;
+    if (!lohis.liikus && Math.abs(dx) < 4) return;
+    lohis.liikus = true;
+    const svg = $("#skeem-svg svg");
+    const L = olek.L;
+    const mPx = L / ((VB_W - ML - MR) * svg.getBoundingClientRect().width / VB_W);
+    const samm = L <= 10 ? 0.05 : 0.1;
+    const snap = (v) => Math.round(Math.min(L, Math.max(0, v)) / samm) * samm;
+    const o = lohis.obj, d = dx * mPx;
+    if (o.t === "q") {
+      const pikk = lohis.orig.b - lohis.orig.a;
+      let a = snap(lohis.orig.a + d);
+      if (a + pikk > L + 1e-9) a = L - pikk;
+      o.a = r1(Math.max(0, a)); o.b = r1(o.a + pikk);
+    } else o.x = r1(snap(lohis.orig.x + d));
+    document.querySelectorAll("[data-skeem]").forEach((b) => b.classList.remove("on"));
+    joonistaKõik(); arvuta();
+  }
+  function lohistaLopp() {
+    if (!lohis) return;
+    const l = lohis; lohis = null;
+    if (!l.liikus) avaPop(l.kind, l.id);
+    else if (valitud) { $("#pop").innerHTML = popSisu() || ""; paigutaPop(); }
+  }
+
   // ---------- Käivitus ----------
   function init() {
     $("#kestus").innerHTML = Object.entries(KESTUS).map(([k, v]) => `<option value="${k}"${k === "keskmine" ? " selected" : ""}>${v.nimi}</option>`).join("");
@@ -959,6 +1060,14 @@
     const vorm = $(".checker");
     vorm.addEventListener("input", (e) => { if (e.target.id !== "seeria") onSisend(e); });
     vorm.addEventListener("click", onKlikk);
+    const sv = $("#skeem-svg");
+    sv.addEventListener("pointerdown", lohistaAlgus);
+    sv.addEventListener("pointermove", lohistaLiigu);
+    sv.addEventListener("pointerup", lohistaLopp);
+    sv.addEventListener("pointercancel", () => { lohis = null; });
+    document.addEventListener("pointerdown", (e) => { if (valitud && !e.target.closest("#pop") && !e.target.closest("#skeem-svg .el")) sulgePop(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") sulgePop(); });
+    window.addEventListener("resize", paigutaPop);
     arvuta();
   }
   init();

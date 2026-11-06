@@ -245,3 +245,16 @@ body:not(.mode-b) .only-b { display: none !important; }
   .grid3 { grid-template-columns: 1fr 1fr; }
   .item > .fld { flex: 1 1 120px; }
 }
+.preview { position: relative; }
+#skeem-svg { touch-action: pan-y; }
+.chart .el { cursor: grab; touch-action: none; }
+.chart .el:hover .sup, .chart .el:hover .hinge { stroke: var(--accent); }
+.chart .el:hover polygon, .chart .el:hover line, .chart .el:hover path { filter: brightness(1.25); }
+.chart .el.sel .hit { fill: rgba(47, 107, 79, .12); stroke: var(--accent); stroke-dasharray: 4 3; }
+.chart .hit { fill: transparent; }
+.chart .editable { fill: var(--accent); font-weight: 600; cursor: pointer; }
+.popover { position: absolute; z-index: 5; width: min(420px, 100%); flex-direction: column; flex-wrap: nowrap; align-items: stretch; box-shadow: 0 6px 24px rgba(0,0,0,.14); border-color: var(--accent); }
+.pop-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.pop-head span { display: flex; gap: 4px; }
+.popover .item-fields { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+.preview:has(#pop:not([hidden])) { padding-bottom: 150px; }
